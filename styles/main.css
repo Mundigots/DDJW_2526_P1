@@ -1,16 +1,38 @@
+body{
+	background-color: #A3C4EB;
+	
+}
+
 #title, .center{
 	display: block;
 	margin-left: auto;
 	margin-right: auto;
 }
 
-button.center{
-	width: 6rem;
-	height: 3rem;
-	margin-top: 1rem;
-}
-
 #title{
-	color:red;
+	font-size: 4rem;
+	color: #F6FAFF;
 	text-align: center;
 }
+
+button.center{
+	width: 8rem;
+	height: 4rem;
+	margin-top: 1rem;
+	background-color: #FFDE70;
+	color: #173B64;
+	border-radius: 2rem;
+	box-shadow: 0 0.25rem 0 #112250;
+}
+
+button.center:hover{
+	background-color: #173B64;
+	color: #FFDE70;
+	box-shadow: 0 0 0;
+}
+
+button.center:active{
+	background-color: #F6FAFF;
+	color: #173B64;
+}
+
