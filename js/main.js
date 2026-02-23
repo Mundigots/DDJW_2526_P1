@@ -3,6 +3,7 @@ addEventListener('load', function() {
     function(){
         var alias = prompt("Quin nom tens?");
 		console.log(alias);
+		alert("Benvingut " + alias + "!");
     });
 
     document.getElementById('options').addEventListener('click', 
