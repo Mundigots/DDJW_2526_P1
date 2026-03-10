@@ -40,6 +40,6 @@ button.center:active{
 	display: flex; /*Per tal de posar les cartes en fila*/
 	justify-content: center; /*Centra les cartes horitzontalment*/
 	flex-wrap: wrap; /*En el cas de detectar un excés de cartes en una línia les cartes sobrants passen a la fila següent*/
-	gap: 2rem; /*Espai entre cartes*/
+	gap: 2rem; /*Espai entre cartes de 2rem*/
 }
 	
