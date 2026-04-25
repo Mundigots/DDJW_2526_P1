@@ -40,21 +40,37 @@ var game = {
             this.groupSize = toLoad.groupSize;
         }
         else{ // Nova partida
-            this.items = resources.slice();          
-            shuffe(this.items);
+			// Llegim les opcions guardades
+			let savedOptions = localStorage.options && JSON.parse(localStorage.options);
+            
+			if (savedOptions){
+				this.groupSize = parseInt(savedOptions.groupSize) || 2;
+				this.difficulty = savedOptions.difficulty || "normal";
+				this.numCards = parseInt(savedOptions.pairs) || 4;
+			}
 			
-			// Agafem el nombre de cartes (des de 0 fins a 4)
-            this.items = this.items.slice(0,4);
-
-			// Agafem el nombre de cartes en funció de la mida del grup
-            let expandedItems = []; // Variable auxiliar que guardarà temporalment les cartes repetides
+			// Modificacions en funció de la mida del grup
+			if (this.difficulty === "easy"){
+				this.groupSize = 2;
+			}
+			else if (this.difficulty === "hard"){
+				this.groupSize = Math.max(this.groupSize, 3); // El Math.max s'utilitza per assegurar que la mida del grup no baixi mai de 3 ni es redueixi en el cas de que l'usuari hagi seleccionat una dificultat major
+			}
+			
+			// Selecció de les cartes en funció de numCards
+			this.items = resources.slice();
+			shuffe(this.items);
+			this.items = this.items.slice(0, this.numCards);
+			
+			// Expandir segons groupSize
+			let expandedItems = [];
 			this.items.forEach(item => {
-				for (let i=0; i<this.groupSize; i++){
+				for (let i=0; i < this.groupSize; i++){
 					expandedItems.push(item);
 				}
 			});
 			
-			this.items = expandedItems;
+			this.items = expandedItems;          
             shuffe(this.items);
 			
             this.states = new Array(this.items.length).fill(StateCard.ENABLE);
