@@ -1,7 +1,8 @@
-const resources = ['../resources/cb.png', '../resources/co.png',
-                '../resources/sb.png', '../resources/so.png',
-                '../resources/tb.png', '../resources/to.png'];
-const back = '../resources/back.png';
+const resources = ['../resources/svg/corGr.svg', '../resources/svg/orosGr.svg',
+                '../resources/svg/picaBl.svg', '../resources/svg/trevolBl.svg',
+				'../resources/svg/corBl.svg', '../resources/svg/orosBl.svg',
+                '../resources/svg/picaGr.svg', '../resources/svg/trevolGr.svg'];
+const back = '../resources/svg/back.svg';
 
 const StateCard = Object.freeze({
   DISABLE: 0,
@@ -61,8 +62,6 @@ var game = {
         }
     },
     start: function(){
-		this.ready = 0; // Per reiniciar ready cada vegada
-		
         this.items.forEach((_,indx)=>{
             if (this.states[indx] === StateCard.DISABLE ||
                 this.states[indx] === StateCard.DONE){
@@ -163,8 +162,15 @@ export function selectCards() {
     game.select();
     gameItems = game.items;
 }
-export function clickCard(indx){ game.click(indx); }
-export function startGame(){ game.start(); }
+
+export function clickCard(indx){ 
+	game.click(indx); 
+}
+
+export function startGame(){ 
+	game.start(); 
+}
+
 export function initCard(callback) { 
     if (!game.setValue) game.setValue = [];
     game.setValue.push(callback); 
