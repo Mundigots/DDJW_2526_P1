@@ -1,5 +1,8 @@
 import {$} from "../library/jquery-4.0.0.slim.module.min.js";
 
+var modeJoc = $('#modeJoc');
+var opcionsMode1 = $('#opcionsMode1');
+
 var options = function(){
     const default_options = {
         pairs: 2,
@@ -15,6 +18,21 @@ var options = function(){
     var savedOptions = localStorage.options && JSON.parse(localStorage.options);
     var options = Object.create(default_options);
 	
+	// Mostrar o amagar les opcions en funció del mode
+	modeJoc.on('change', function (){
+		if (modeJoc.val() === "mode1"){
+			opcionsMode1.show();
+		} 
+		else {
+			opcionsMode1.hide();
+		}
+	});
+
+	// Estat inicial del joc
+	if (modeJoc.val() === "mode2"){
+		opcionsMode1.hide();
+	}
+
 	// Assignació de valors en funció de les condicions
     if (savedOptions && savedOptions.pairs)
         options.pairs = savedOptions.pairs;
@@ -59,9 +77,23 @@ var options = function(){
 
 $('#default').on('click', function(){
     options.defaultValues();
-})
+});
 
 $('#apply').on('click', function(){
-    options.applyChanges();
-    location.assign("../");
-});
+    if (modeJoc.val() === "mode1"){
+		// Únicament guardem les opcions escollides i tornem al menú
+		options.applyChanges();
+		location.assign("../");
+	}
+	else{
+		// En el mode 2 de joc cal carregar la partida guardada en el cas de que n'hi hagi
+		if (localStorage.save){
+			sessionStorage.load = localStorage.save;
+			location.assign("../html/game.html");
+		}
+		else{
+			// Si no hi ha partides prèvies guardades, mostrem un missatge per pantalla
+			alert("No hi ha cap partida guardada. Comença una partida nova amb el Mode 1");
+		}
+	}
+});	
