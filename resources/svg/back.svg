@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="180" viewBox="0 0 120 180">
+	<!-- Fons i vora de les cartes -->
+	<rect x="2" y="2" width="116" height="176" rx="15" fill="#173B64" stroke="#112250" stroke-width="3"/>
+
+	<!-- Patró de rombes alternats -->
+	<defs>
+		<pattern id="rombes" width="24" height="24" patternUnits="userSpaceOnUse">
+			<!-- Romb groc -->
+			<polygon points="12,0 24,12 12,24 0,12" fill="#FFDE70"/>
+
+			<!-- Romb blau clar desplaçat per alternança -->
+			<polygon points="12,-12 24,0 12,12 0,0" fill="#A3C4EB"/>
+			<polygon points="12,12 24,24 12,36 0,24" fill="#A3C4EB"/>
+		</pattern>
+	</defs>
+
+	<!-- Aplicació del patró -->
+	<rect x="8" y="8" width="104" height="164" rx="12" fill="url(#rombes)"/>
+</svg>
