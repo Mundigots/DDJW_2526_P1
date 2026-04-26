@@ -247,7 +247,7 @@ var game = {
 						
 						sessionStorage.removeItem("load");
 						sessionStorage.removeItem("currentSaveId");
-						window.location.assign("./game.html");
+						window.location.assign("./canvasgame.html");
 						return;
 					}
 
