@@ -1,6 +1,10 @@
 body{
 	background-color: #A3C4EB;
-	
+}
+
+h1, h2, h3, h4, h5, h6{
+	text-align: center;
+	color: #F6FAFF;
 }
 
 #title, .center{
@@ -13,6 +17,7 @@ body{
 	font-size: 4rem;
 	color: #F6FAFF;
 	text-align: center;
+	margin-bottom: 0.2rem;
 }
 
 button.center{
@@ -23,6 +28,9 @@ button.center{
 	color: #173B64;
 	border-radius: 2rem;
 	box-shadow: 0 0.25rem 0 #112250;
+	border: none;
+	font-size: 0.8rem;
+	cursor: pointer;
 }
 
 button.center:hover{
@@ -36,10 +44,18 @@ button.center:active{
 	color: #173B64;
 }
 
-#game{
-	display: flex; /*Per tal de posar les cartes en fila*/
-	justify-content: center; /*Centra les cartes horitzontalment*/
-	flex-wrap: wrap; /*En el cas de detectar un excés de cartes en una línia les cartes sobrants passen a la fila següent*/
-	gap: 2rem; /*Espai entre cartes de 2rem*/
+#hud{
+	width: 100%;
+	text-align: center;
+	font-size: 1rem;
+	font-weight: bold;
+	color: #173B64;
+	margin-top: 0.2rem;
+	margin-bottom: 0.2rem;
 }
-	
+
+#game {
+    display: block;
+    margin: 0 auto;
+}
+

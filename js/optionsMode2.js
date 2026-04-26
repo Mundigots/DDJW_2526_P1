@@ -73,5 +73,5 @@ $('#apply').on('click', function(){
 	
 	// Activem el Mode de joc 2
 	sessionStorage.mode2 = "true";
-	location.assign("./game.html");
+	location.assign("./canvasgame.html");
 });	

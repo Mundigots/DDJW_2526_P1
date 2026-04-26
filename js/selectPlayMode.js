@@ -9,7 +9,7 @@ import {$} from "../library/jquery-4.0.0.slim.module.min.js";
 	mode1.on('click', function (){
 		sessionStorage.removeItem("mode2");
 		sessionStorage.removeItem("load");
-		window.location.assign("../html/game.html");
+		window.location.assign("./canvasgame.html");
 	});
 	
 	// MODE DE JOC 2
@@ -33,7 +33,7 @@ import {$} from "../library/jquery-4.0.0.slim.module.min.js";
 			penalty: 15
 		});
 		
-		window.location.assign("../html/game.html");
+		window.location.assign("./canvasgame.html");
 	});
 	
 // TORNAR ENRERE
