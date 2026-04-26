@@ -11,6 +11,7 @@ const StateCard = Object.freeze({
 });
 
 var game = {
+	alies: sessionStorage.alies || "Unknown",
 	items: [],
 	states: [],
 	setValue: null,
@@ -39,7 +40,8 @@ var game = {
 		// Carreguem la partida guardada del Mode 2
 		if (sessionStorage.mode2 === "true"){ 
 			let toLoad = JSON.parse(sessionStorage.load);
-
+	
+			this.alies = toLoad.alies || sessionStorage.alies || "Unknown";
 			this.items = toLoad.items || [];
 			this.states = toLoad.states || [];
 			this.selectedCards = toLoad.selectedCards || [];
@@ -78,7 +80,8 @@ var game = {
         // Carreguem la partida guardada del Mode de joc 1
 		if (sessionStorage.load){
 			let toLoad = JSON.parse(sessionStorage.load);
-
+			
+			this.alies = toLoad.alies || sessionStorage.alies || "Unknown";
 			this.items = toLoad.items || [];
 			this.states = toLoad.states || [];
 			this.selectedCards = toLoad.selectedCards || []; // Carreguem les cartes seleccionades o, si no n'hi ha cap de seleccionada, l'array buit
@@ -146,13 +149,22 @@ var game = {
 			}
 		});
 	},
-	calcularPuntuacioMode2: function(){
+	calcularPuntuacioMode2: function (){
 		let punts = 0;
 		punts += this.items.length*2;
 		punts += this.groupSize*10;
 		punts += this.level*20;
 		punts -= this.errors*25;
 		return punts;
+	},
+	guardarPuntuacio: function (){
+		let ranking = JSON.parse(localStorage.getItem("ranking")) || [];
+		ranking.push({
+			alies: this.alies,
+			score: this.score,
+		});
+		
+		localStorage.setItem("ranking", JSON.stringify(ranking));
 	},
 	click: function(indx){
 		if (this.states[indx] !== StateCard.ENABLE || this.ready < this.items.length || this.isChecking) return;
@@ -223,7 +235,8 @@ var game = {
 						return;
 					}
 
-					// Resolució partida 
+					// Resolució partida
+					this.guardarPuntuacio();
 					alert(`Has guanyat amb ${this.score} punts!!!!`);
 					window.location.assign("../");
 				}
@@ -240,6 +253,7 @@ var game = {
                 
 				// Comprovació derrota
 				if (this.score <= 0){
+					this.guardarPuntuacio();
 					alert ("Has perdut");
 					window.location.assign("../");
 				}
@@ -248,6 +262,7 @@ var game = {
 	},
 	save: function(){
 		let to_save = JSON.stringify({
+			alies: this.alies,
 			items: this.items,
 			states: this.states,
 			selectedCards: this.selectedCards,
