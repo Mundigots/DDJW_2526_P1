@@ -5,7 +5,9 @@ import {$} from "../library/jquery-4.0.0.slim.module.min.js";
 	var seleccionarOptions = $('#options');
 	var seleccionarSaves = $('#saves');
 	var seleccionarExit = $('#exit');
-	
+	var seleccionarRanking = $('#ranking');
+	var seleccionarAlies = $('#canviarAlies');
+
 // Detectar canvis
 	// PLAY (mostra la selecció del mode de joc)
 	seleccionarPlay.on('click', function (){
@@ -45,6 +47,17 @@ import {$} from "../library/jquery-4.0.0.slim.module.min.js";
 			sessionStorage.load = toLoad;
 			window.location.assign("./html/game.html");
 		});
+	});
+	
+	// RANKING
+	seleccionarRanking.on('click', function (){
+		window.location.assign("./html/ranking.html");
+	});
+	
+	// CANVIAR ALIES
+	seleccionarAlies.on('click', function (){
+		sessionStorage.removeItem("alies");
+		location.reload();
 	});
 	
 	// EXIT
