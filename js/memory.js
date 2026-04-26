@@ -60,6 +60,10 @@ var game = {
 			}
 			else{
 				// Si no hi ha cap partida guardada en creem una de nova i lle)gim les opcions
+				// Netegem load per evitar que es carreguin valors previs a la nova partida
+				sessionStorage.removeItem("load");
+				sessionStorage.removeItem("currentSaveId");
+				
 				// Llegim les opcions del Mode 2
 				let savedOpt2 = localStorage.optionsModel2 && JSON.parse(localStorage.optionsModel2);
 				if (savedOpt2){
@@ -73,7 +77,7 @@ var game = {
 				
 				// Generació de cartes
 				this.items = resources.slice();
-				shuffe(this.items);
+				shuffle(this.items);
 				this.items = this.items.slice(0, this.numCards);
 
 				let expandedCards = [];
@@ -84,7 +88,7 @@ var game = {
 				});
 
 				this.items = expandedCards;
-				shuffe(this.items);
+				shuffle(this.items);
 
 				this.states = new Array(this.items.length).fill(StateCard.ENABLE);
 				this.remainingGroups = this.items.length / this.groupSize;
@@ -120,6 +124,10 @@ var game = {
 		}
 
 		// Implementem la funcionalitat d'una nova partida del Mode de joc 1
+		// Netegem load per evitar que es carreguin valors previs a la nova partida
+		sessionStorage.removeItem("load");
+		sessionStorage.removeItem("currentSaveId");
+		
 		let savedOptions = localStorage.optionsModel1 && JSON.parse(localStorage.optionsModel1);
 		if (savedOptions){
 			this.groupSize = parseInt(savedOptions.groupSize) || 2;
@@ -137,7 +145,7 @@ var game = {
 
 		// Selecció de les cartes en funció de numCards
 		this.items = resources.slice();
-		shuffe(this.items);
+		shuffle(this.items);
 		this.items = this.items.slice(0, this.numCards);
 
 		// Expandir segons groupSize
@@ -149,7 +157,7 @@ var game = {
 		});
 
 		this.items = expandedItems;          
-		shuffe(this.items);
+		shuffle(this.items);
 
 		this.states = new Array(this.items.length).fill(StateCard.ENABLE);
 		this.remainingGroups = this.items.length / this.groupSize;
@@ -238,12 +246,16 @@ var game = {
 						this.errors = 0;
 						
 						sessionStorage.removeItem("load");
+						sessionStorage.removeItem("currentSaveId");
 						window.location.assign("./game.html");
 						return;
 					}
 
 					// Resolució partida
 					this.guardarPuntuacio();
+					sessionStorage.removeItem("currentSaveId");
+					sessionStorage.removeItem("load");
+					
 					alert(`Has guanyat amb ${this.score} punts!!!!`);
 					window.location.assign("../");
 				}
@@ -261,6 +273,9 @@ var game = {
 				// Comprovació derrota
 				if (this.score <= 0){
 					this.guardarPuntuacio();
+					sessionStorage.removeItem("currentSaveId");
+					sessionStorage.removeItem("load");
+					
 					alert ("Has perdut");
 					window.location.assign("../");
 				}
@@ -284,25 +299,37 @@ var game = {
 			penalty: this.penalty
 		});
 
-		let ret = false;
-		fetch('../php/save.php',{
-			method: "POST",
-			body: to_save,
-			headers: {"Content-type": "application/json; charset=UTF-8"}
-		})
+		let saves = JSON.parse(localStorage.getItem("saves")) || [];
+		let partida = JSON.parse(to_save);
 
-		.then(response => ret = JSON.parse(response))
-		.catch (err => console.error(err));
-
-		if (!ret){
-			console.warn("La partida s'ha guardat en local.");
-			localStorage.save = to_save;
+		// Afegim informació extra per diferenciar correctament les partides entre si
+		partida.id = Date.now();
+		partida.nom = `${this.alies} - ${new Date().toLocaleString()}`;
+		partida.mode2 = sessionStorage.mode2 === "true";
+		
+		let currentId = sessionStorage.currentSaveId; // Mantenim les partides identificades
+		// Sobreescrivim una partida en cas de que ja existeixi
+		if (currentId){
+			let index = saves.findIndex(s => s.id == currentId);
+			if (index !== -1){
+				partida.id = currentId;
+				saves[index] = partida;
+			}
+			else{
+				saves.push(partida);
+			}
 		}
-		window.location.assign("../");
+		else{
+			saves.push(partida);
+		}
+		
+		localStorage.setItem("saves", JSON.stringify(saves));
+		alert("Partida guardada correctament");
+		window.location.assign("../");	
 	}
 }
 
-function shuffe(arr){
+function shuffle(arr){
 	arr.sort(function (){
 		return Math.random() - 0.5
 	});
