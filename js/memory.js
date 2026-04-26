@@ -27,6 +27,7 @@ var game = {
 	groupSize: 2, // Les mides dels grups poden ser 2,3 o 4
 	timeLimit: 90, // Temps limit inicial
 	penalty: 15, // Les penalitzacions per cada error descomptaran 15 punts en el Mode de joc 2
+	
 	goBack: function(idx){
 		this.setValue && this.setValue[idx](back);
 		this.states[idx] = StateCard.ENABLE;
@@ -35,28 +36,42 @@ var game = {
 		this.setValue && this.setValue[idx](this.items[idx]);
 		this.states[idx] = StateCard.DISABLE;
 	},
-
 	select: function(){
 		// Carreguem la partida guardada del Mode 2
 		if (sessionStorage.mode2 === "true"){ 
-			let toLoad = JSON.parse(sessionStorage.load);
-	
-			this.alies = toLoad.alies || sessionStorage.alies || "Unknown";
-			this.items = toLoad.items || [];
-			this.states = toLoad.states || [];
-			this.selectedCards = toLoad.selectedCards || [];
-			this.remainingGroups = toLoad.remainingGroups || 0;
-			this.score = toLoad.score;
-			this.groupSize = toLoad.groupSize;
-			this.numCards = toLoad.numCards;
-			this.difficulty = toLoad.difficulty;
-			this.errors = toLoad.errors || 0;
-			this.level = toLoad.level || 1;
-			this.ready = 0;
-			this.isChecking = false;
+			let toLoad = JSON.parse(sessionStorage.load || "null");
 			
-            // Generem cartes si no n'hi ha de noves (primer nivell o següent)
-			if (!this.items.length){
+			if (toLoad && toLoad.items && toLoad.items.length > 0){ // Evitem un load buit
+				this.alies = toLoad.alies || sessionStorage.alies || "Unknown";
+				this.items = toLoad.items || [];
+				this.states = toLoad.states || [];
+				this.selectedCards = toLoad.selectedCards || [];
+				this.remainingGroups = toLoad.remainingGroups || 0;
+				this.score = toLoad.score;
+				this.groupSize = parseInt(toLoad.groupSize) || 2;
+				this.numCards = parseInt(toLoad.numCards) || 4;
+				this.difficulty = toLoad.difficulty || "easy";
+				this.errors = toLoad.errors || 0;
+				this.level = parseInt(toLoad.level) || 1;
+				this.timeLimit = (toLoad.timeLimit ?? 90);
+				this.penalty = (toLoad.penalty ?? 15);
+				this.ready = 0;
+				this.isChecking = false;
+			}
+			else{
+				// Si no hi ha cap partida guardada en creem una de nova i lle)gim les opcions
+				// Llegim les opcions del Mode 2
+				let savedOpt2 = localStorage.optionsModel2 && JSON.parse(localStorage.optionsModel2);
+				if (savedOpt2){
+					this.level = parseInt(savedOpt2.level) || 1;
+					this.difficulty = savedOpt2.difficulty || "easy";
+					this.groupSize = parseInt(savedOpt2.groupSize) || 2;
+				}
+				
+				// Nombre de cartes inicials en funció del nivell
+				this.numCards = Math.min(4 + Math.floor(this.level/2),12);
+				
+				// Generació de cartes
 				this.items = resources.slice();
 				shuffe(this.items);
 				this.items = this.items.slice(0, this.numCards);
@@ -73,13 +88,19 @@ var game = {
 
 				this.states = new Array(this.items.length).fill(StateCard.ENABLE);
 				this.remainingGroups = this.items.length / this.groupSize;
+				this.score = 200;
+				this.errors = 0;
+				this.timeLimit = 90;
+				this.penalty = 15;
+				this.ready = 0;
+				this.isChecking = false;
 			}
-
+			
 			return; // Realitzem un return per evitar entrar al Mode 1
         }
         // Carreguem la partida guardada del Mode de joc 1
 		if (sessionStorage.load){
-			let toLoad = JSON.parse(sessionStorage.load);
+			let toLoad = JSON.parse(sessionStorage.load || "{}");
 			
 			this.alies = toLoad.alies || sessionStorage.alies || "Unknown";
 			this.items = toLoad.items || [];
@@ -99,11 +120,11 @@ var game = {
 		}
 
 		// Implementem la funcionalitat d'una nova partida del Mode de joc 1
-		let savedOptions = localStorage.options && JSON.parse(localStorage.options);
+		let savedOptions = localStorage.optionsModel1 && JSON.parse(localStorage.optionsModel1);
 		if (savedOptions){
 			this.groupSize = parseInt(savedOptions.groupSize) || 2;
 			this.difficulty = savedOptions.difficulty || "normal";
-			this.numCards = parseInt(savedOptions.pairs) || 4;
+			this.numCards = parseInt(savedOptions.groupCount) || 4;
 		}
 
 		// Modificacions en funció de la dificultat
@@ -216,22 +237,8 @@ var game = {
 						// Reiniciar errors
 						this.errors = 0;
 						
-						sessionStorage.load = JSON.stringify({
-							items: [],
-							states: [],
-							selectedCards: [],
-							remainingGroups: 0,
-							score: this.score,
-							groupSize: this.groupSize,
-							numCards: this.numCards,
-							difficulty: this.difficulty,
-							errors: 0,
-							level: this.level,
-							timeLimit: this.timeLimit,
-							penalty: this.penalty
-						});
-
-						window.location.reload();
+						sessionStorage.removeItem("load");
+						window.location.assign("./game.html");
 						return;
 					}
 
