@@ -1,37 +1,21 @@
 import {$} from "../library/jquery-4.0.0.slim.module.min.js";
 
-var modeJoc = $('#modeJoc');
-var opcionsMode1 = $('#opcionsMode1');
-
 var options = function(){
     const default_options = {
         pairs: 2,
         difficulty: 'normal',
-		groupSize: 2 // Mida dels grups per defecte
-    } 
+		groupSize: 2, // Mida dels grups per defecte
+		startLevel: 1
+	}; 
 	
 	// Variables
     var pairs = $('#pairs');
     var difficulty = $('#dif');
 	var groupSize = $('#groupSize'); 
-    
+    var startLevel = $('#startLevel');
+	
     var savedOptions = localStorage.options && JSON.parse(localStorage.options);
     var options = Object.create(default_options);
-	
-	// Mostrar o amagar les opcions en funció del mode
-	modeJoc.on('change', function (){
-		if (modeJoc.val() === "mode1"){
-			opcionsMode1.show();
-		} 
-		else {
-			opcionsMode1.hide();
-		}
-	});
-
-	// Estat inicial del joc
-	if (modeJoc.val() === "mode2"){
-		opcionsMode1.hide();
-	}
 
 	// Assignació de valors en funció de les condicions
     if (savedOptions && savedOptions.pairs)
@@ -40,11 +24,14 @@ var options = function(){
         options.difficulty = savedOptions.difficulty;
 	if (savedOptions && savedOptions.groupSize)
 		options.groupSize = savedOptions.groupSize;
-	
+	if (savedOptions && savedOptions.startLevel)
+		options.startLevel = savedOptions.startLevel;
+
 	// Establir valors
     pairs.val(options.pairs);
     difficulty.val(options.difficulty);
 	groupSize.val(options.groupSize);
+	startLevel.val(options.startLevel);
 	
 	// Guardar canvis
     pairs.on('change', function (){
@@ -59,6 +46,10 @@ var options = function(){
 		options.groupSize = groupSize.val();
 	});
 	
+	startLevel.on('change', function(){
+		options.startLevel = startLevel.val();
+	});
+	
     return {
         applyChanges: function(){
             localStorage.options = JSON.stringify(options);
@@ -67,10 +58,12 @@ var options = function(){
             options.pairs = default_options.pairs;
             options.difficulty = default_options.difficulty;
 			options.groupSize = default_options.groupSize;
+			options.startLevel = default_options.startLevel;
 			
             pairs.val(options.pairs);
             difficulty.val(options.difficulty);
 			groupSize.val(options.groupSize);
+			startLevel.val(options.startLevel);
         }
     }
 }();
@@ -80,20 +73,7 @@ $('#default').on('click', function(){
 });
 
 $('#apply').on('click', function(){
-    if (modeJoc.val() === "mode1"){
-		// Únicament guardem les opcions escollides i tornem al menú
-		options.applyChanges();
-		location.assign("../");
-	}
-	else{
-		// En el mode 2 de joc cal carregar la partida guardada en el cas de que n'hi hagi
-		if (localStorage.save){
-			sessionStorage.load = localStorage.save;
-			location.assign("../html/game.html");
-		}
-		else{
-			// Si no hi ha partides prèvies guardades, mostrem un missatge per pantalla
-			alert("No hi ha cap partida guardada. Comença una partida nova amb el Mode 1");
-		}
-	}
+	// Únicament guardem les opcions escollides i tornem al menú
+	options.applyChanges();
+	location.assign("../");
 });	

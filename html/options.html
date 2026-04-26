@@ -8,35 +8,25 @@
 	<body>
 		<h1>Opcions</h1>
 		
-		<label for="modeJoc">Mode de joc</label>
-		<select id="modeJoc">
-			<option value="mode1">Mode 1 (nivell únic)</option>
-			<option value="mode2">Mode 2 (progressió de nivells)</option>
+		<label for="pairs">Número de cartes</label>
+		<input type="number" id="pairs" value="2" min="2" max="6">
+		
+		<!-- Dificultat -->
+		<label for="dif">Dificultat</label>
+		<select id="dif">
+			<option value="easy">Baixa</option>
+			<option value="normal" selected>Normal</option>
+			<option value="hard">Alta</option>
 		</select>
 		
-		<div id="opcionsMode1">
-			<label for="pairs">Número de cartes</label>
-			<input type="number" id="pairs" value="2" min="2" max="6">
-		
-			<!-- Dificultat -->
-			<label for="dif">Dificultat</label>
-			<select id="dif">
-				<option value="easy">Baixa</option>
-				<option value="normal" selected>Normal</option>
-				<option value="hard">Alta</option>
-			</select>
-		
-			<!-- Mida del grup -->
-			<label for="groupSize">Mida grup</label>
-			<select id="groupSize">
-				<option value="2">Parelles</option>
-				<option value="3" selected>Trios</option>
-				<option value="4">Quartets</option>
-			</select>
+		<!-- Mida del grup -->
+		<label for="groupSize">Mida grup</label>
+		<select id="groupSize">
+			<option value="2">Parelles</option>
+			<option value="3" selected>Trios</option>				<option value="4">Quartets</option>
+		</select>
 			
-			<button id="default">Per defecte</button>
-		</div>
-		
+		<button id="default">Per defecte</button>		
         <button id="apply">Aplicar</button>
 	</body>
 </html>
