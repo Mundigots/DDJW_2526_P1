@@ -32,7 +32,7 @@ import {$} from "../library/jquery-4.0.0.slim.module.min.js";
 			sessionStorage.currentSaveId = save.id;
 			sessionStorage.mode2 = save.mode2;
 
-			window.location.assign("./game.html");
+			window.location.assign("./canvasgame.html");
 		});
 
 		// Eliminar partida

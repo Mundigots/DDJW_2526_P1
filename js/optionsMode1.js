@@ -67,5 +67,5 @@ $('#apply').on('click', function(){
 	optionsModel1.applyChanges();
 	sessionStorage.mode2 = "false";
 	sessionStorage.removeItem("load");
-	location.assign("./game.html");
+	location.assign("./canvasgame.html");
 });	

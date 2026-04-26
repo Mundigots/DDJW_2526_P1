@@ -357,3 +357,7 @@ export function initCard(callback){
 export function saveGame(){
 	game.save();
 }
+
+export{ 
+	game 
+};
