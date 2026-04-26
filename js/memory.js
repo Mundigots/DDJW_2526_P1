@@ -1,105 +1,167 @@
 const resources = ['../resources/svg/corGr.svg', '../resources/svg/orosGr.svg',
-                '../resources/svg/picaBl.svg', '../resources/svg/trevolBl.svg',
-				'../resources/svg/corBl.svg', '../resources/svg/orosBl.svg',
-                '../resources/svg/picaGr.svg', '../resources/svg/trevolGr.svg'];
+	'../resources/svg/picaBl.svg', '../resources/svg/trevolBl.svg',
+	'../resources/svg/corBl.svg', '../resources/svg/orosBl.svg',
+	'../resources/svg/picaGr.svg', '../resources/svg/trevolGr.svg'];
 const back = '../resources/svg/back.svg';
 
 const StateCard = Object.freeze({
-  DISABLE: 0,
-  ENABLE: 1,
-  DONE: 2
+	DISABLE: 0,
+	ENABLE: 1,
+	DONE: 2
 });
 
 var game = {
-    items: [],
-    states: [],
-    setValue: null,
-    ready: 0,
-    selectedCards: [], // Cartes seleccionades
+	items: [],
+	states: [],
+	setValue: null,
+	ready: 0,
+	selectedCards: [], // Cartes seleccionades
 	remainingGroups: 0, // Grups restants per completar
-    isChecking: false, // Variable per bloquejar el gir de les cartes mentre es resol el grup (és correcte o no)
+	isChecking: false, // Variable per bloquejar el gir de les cartes mentre es resol el grup (és correcte o no)
 	score: 200,
-    groupSize: 2, // Les mides dels grups poden ser 2,3 o 4
-    goBack: function(idx){
-        this.setValue && this.setValue[idx](back);
-        this.states[idx] = StateCard.ENABLE;
-    },
-    goFront: function(idx){
-        this.setValue && this.setValue[idx](this.items[idx]);
-        this.states[idx] = StateCard.DISABLE;
-    },
-    select: function(){
-        if (sessionStorage.load){ // Carreguem partida
-            let toLoad = JSON.parse(sessionStorage.load);
-            this.items = toLoad.items;
-            this.states = toLoad.states;
-            this.selectedCards = toLoad.selectedCards || []; // Carreguem les cartes seleccionades o, si no n'hi ha cap de seleccionada, l'array buit
-            this.remainingGroups = toLoad.remainingGroups;
-			this.isChecking = false;
+	level: 1,
+	errors: 0,
+	numCards: 4,
+	difficulty: "easy",
+	groupSize: 2, // Les mides dels grups poden ser 2,3 o 4
+	timeLimit: 90, // Temps limit inicial
+	penalty: 15, // Les penalitzacions per cada error descomptaran 15 punts en el Mode de joc 2
+	goBack: function(idx){
+		this.setValue && this.setValue[idx](back);
+		this.states[idx] = StateCard.ENABLE;
+	},
+	goFront: function(idx){
+		this.setValue && this.setValue[idx](this.items[idx]);
+		this.states[idx] = StateCard.DISABLE;
+	},
+
+	select: function(){
+		// Carreguem la partida guardada del Mode 2
+		if (sessionStorage.mode2 === "true"){ 
+			let toLoad = JSON.parse(sessionStorage.load);
+
+			this.items = toLoad.items || [];
+			this.states = toLoad.states || [];
+			this.selectedCards = toLoad.selectedCards || [];
+			this.remainingGroups = toLoad.remainingGroups || 0;
 			this.score = toLoad.score;
-            this.groupSize = toLoad.groupSize;
+			this.groupSize = toLoad.groupSize;
+			this.numCards = toLoad.numCards;
+			this.difficulty = toLoad.difficulty;
+			this.errors = toLoad.errors || 0;
+			this.level = toLoad.level || 1;
+			this.ready = 0;
+			this.isChecking = false;
+			
+            // Generem cartes si no n'hi ha de noves (primer nivell o següent)
+			if (!this.items.length){
+				this.items = resources.slice();
+				shuffe(this.items);
+				this.items = this.items.slice(0, this.numCards);
+
+				let expandedCards = [];
+				this.items.forEach(item => {
+					for (let i=0; i < this.groupSize; i++){
+						expandedCards.push(item);
+					}
+				});
+
+				this.items = expandedCards;
+				shuffe(this.items);
+
+				this.states = new Array(this.items.length).fill(StateCard.ENABLE);
+				this.remainingGroups = this.items.length / this.groupSize;
+			}
+
+			return; // Realitzem un return per evitar entrar al Mode 1
         }
-        else{ // Nova partida
-			// Llegim les opcions guardades
-			let savedOptions = localStorage.options && JSON.parse(localStorage.options);
-            
-			if (savedOptions){
-				this.groupSize = parseInt(savedOptions.groupSize) || 2;
-				this.difficulty = savedOptions.difficulty || "normal";
-				this.numCards = parseInt(savedOptions.pairs) || 4;
+        // Carreguem la partida guardada del Mode de joc 1
+		if (sessionStorage.load){
+			let toLoad = JSON.parse(sessionStorage.load);
+
+			this.items = toLoad.items || [];
+			this.states = toLoad.states || [];
+			this.selectedCards = toLoad.selectedCards || []; // Carreguem les cartes seleccionades o, si no n'hi ha cap de seleccionada, l'array buit
+			this.remainingGroups = toLoad.remainingGroups || 0;
+			this.score = toLoad.score;
+			this.groupSize = toLoad.groupSize;
+			this.numCards = toLoad.numCards;
+			this.difficulty = toLoad.difficulty;
+			this.errors = toLoad.errors || 0;
+			this.level = toLoad.level || 1;
+			this.ready = 0;
+			this.isChecking = false;
+			
+			return;
+		}
+
+		// Implementem la funcionalitat d'una nova partida del Mode de joc 1
+		let savedOptions = localStorage.options && JSON.parse(localStorage.options);
+		if (savedOptions){
+			this.groupSize = parseInt(savedOptions.groupSize) || 2;
+			this.difficulty = savedOptions.difficulty || "normal";
+			this.numCards = parseInt(savedOptions.pairs) || 4;
+		}
+
+		// Modificacions en funció de la dificultat
+		if (this.difficulty === "easy"){
+			this.groupSize = 2;
+		}
+		else if (this.difficulty === "hard"){
+			this.groupSize = Math.max(this.groupSize,3); // El Math.max s'utilitza per assegurar que la mida del grup no baixi mai de 3 ni es redueixi en el cas de que l'usuari hagi seleccionat una dificultat major
+		}
+
+		// Selecció de les cartes en funció de numCards
+		this.items = resources.slice();
+		shuffe(this.items);
+		this.items = this.items.slice(0, this.numCards);
+
+		// Expandir segons groupSize
+		let expandedItems = [];
+		this.items.forEach(item => {
+			for (let i=0; i < this.groupSize; i++){
+				expandedItems.push(item);
 			}
-			
-			// Modificacions en funció de la mida del grup
-			if (this.difficulty === "easy"){
-				this.groupSize = 2;
-			}
-			else if (this.difficulty === "hard"){
-				this.groupSize = Math.max(this.groupSize, 3); // El Math.max s'utilitza per assegurar que la mida del grup no baixi mai de 3 ni es redueixi en el cas de que l'usuari hagi seleccionat una dificultat major
-			}
-			
-			// Selecció de les cartes en funció de numCards
-			this.items = resources.slice();
-			shuffe(this.items);
-			this.items = this.items.slice(0, this.numCards);
-			
-			// Expandir segons groupSize
-			let expandedItems = [];
-			this.items.forEach(item => {
-				for (let i=0; i < this.groupSize; i++){
-					expandedItems.push(item);
-				}
-			});
-			
-			this.items = expandedItems;          
-            shuffe(this.items);
-			
-            this.states = new Array(this.items.length).fill(StateCard.ENABLE);
-			this.remainingGroups = this.items.length / this.groupSize;
-        }
-    },
-    start: function(){
-        this.items.forEach((_,indx)=>{
-            if (this.states[indx] === StateCard.DISABLE ||
-                this.states[indx] === StateCard.DONE){
-                this.ready++;
-            }
-            else{
-                setTimeout(()=>{
-                    this.ready++;
-                    this.goBack(indx);
-                }, 1000 + 100 * indx);
-            }
-        });
-    },
-    click: function(indx){
-        if (this.states[indx] !== StateCard.ENABLE || this.ready < this.items.length || this.isChecking) return;
+		});
+
+		this.items = expandedItems;          
+		shuffe(this.items);
+
+		this.states = new Array(this.items.length).fill(StateCard.ENABLE);
+		this.remainingGroups = this.items.length / this.groupSize;
+	},
+	start: function(){
+		this.ready = 0;
         
+		this.items.forEach((_,indx)=>{
+			if (this.states[indx] === StateCard.DISABLE ||
+				this.states[indx] === StateCard.DONE){
+				this.ready++;
+			}
+			else{
+				setTimeout(()=>{
+					this.ready++;
+					this.goBack(indx);
+				}, 1000 + 100 * indx);
+			}
+		});
+	},
+	calcularPuntuacioMode2: function(){
+		let punts = 0;
+		punts += this.items.length*2;
+		punts += this.groupSize*10;
+		punts += this.level*20;
+		punts -= this.errors*25;
+		return punts;
+	},
+	click: function(indx){
+		if (this.states[indx] !== StateCard.ENABLE || this.ready < this.items.length || this.isChecking) return;
+
 		this.goFront(indx);
 		this.selectedCards.push(indx);
-		
-		// Si s'han seleccionat totes les cartes del grup escollit llavors s'agafa la primera carta clicada i es comprova que la resta siguin iguals
-        if (this.selectedCards.length === this.groupSize){
-			this.isChecking = true; // Bloquegem els possibles clics de l'usuari
+
+		if (this.selectedCards.length === this.groupSize){ // Si s'han seleccionat totes les cartes del grup escollit llavors s'agafa la primera carta clicada i es comprova que la resta siguin iguals
+			this.isChecking = true;  // Bloquegem els possibles clics de l'usuari
 			
 			let firstCard = this.items[this.selectedCards[0]]; // Primera carta clicada
 			let equalCardsSelected = this.selectedCards.every(
@@ -108,75 +170,126 @@ var game = {
 			// Si totes les cartes són iguals llavors l'estat de la carta passa a "DONE" perquè no es puguin girar de nou
 			if (equalCardsSelected){
 				this.selectedCards.forEach(
-					i=>this.states[i] = StateCard.DONE);
+					i => this.states[i] = StateCard.DONE);
 				
 				// Actualitzem el nombre de grups restants
 				this.remainingGroups--;
-				
+
 				// Retornem a l'estat sense cartes seleccionades
-				this.selectedCards = [];
-				
+                this.selectedCards = [];
+
 				// Permetem al jugador girar les cartes de nou
 				this.isChecking = false;
-				
-				// Comprovació de victòria
+
 				if (this.remainingGroups <= 0){
+					// Progressió dels nivells del Mode de joc 2
+					if (sessionStorage.mode2 === "true"){
+
+						this.score += this.calcularPuntuacioMode2();
+						this.level++;
+
+						// Progressió de la dificultat del Mode de joc 2
+						// Augment del nombre de cartes
+						this.numCards = Math.min(4 + Math.floor(this.level/2),12);
+						
+						// Augment de la mida de grup
+						this.groupSize = Math.min(2 + Math.floor(this.level/4),6);
+						
+						// Reducció del temps disponible
+						this.timeLimit = Math.max(90 - this.level*3,20);
+						
+						// Penalització progressiva en funció del nivell
+						this.penalty = 15 + Math.floor(this.level*1.5);
+						
+						// Reiniciar errors
+						this.errors = 0;
+						
+						sessionStorage.load = JSON.stringify({
+							items: [],
+							states: [],
+							selectedCards: [],
+							remainingGroups: 0,
+							score: this.score,
+							groupSize: this.groupSize,
+							numCards: this.numCards,
+							difficulty: this.difficulty,
+							errors: 0,
+							level: this.level,
+							timeLimit: this.timeLimit,
+							penalty: this.penalty
+						});
+
+						window.location.reload();
+						return;
+					}
+
+					// Resolució partida 
 					alert(`Has guanyat amb ${this.score} punts!!!!`);
 					window.location.assign("../");
 				}
 			}
-			else{ // Grup incorrecte
-				setTimeout(()=>{ // Retornem les cartes al seu estat previ a ser girades
+			else{
+				setTimeout(()=>{
 					this.selectedCards.forEach(i => this.goBack(i));
 					this.selectedCards = [];
 					this.isChecking = false;
 				},1000);
-				
-				// Actualitzem puntuació
-				this.score -= 25;
-				
-				// Comprovem derrota
-                if (this.score <= 0){
-                    alert ("Has perdut");
-                    window.location.assign("../");
-				}
-            }
-        }
-    },
-    save: function(){
-        let to_save = JSON.stringify({
-            items: this.items,
-            states: this.states,
-            selectedCards: this.selectedCards,
-			remainingGroups: this.remainingGroups,
-            score: this.score,
-            groupSize: this.groupSize
-        });
-        let ret = false;
-        fetch('../php/save.php', {
-            method: "POST",
-            body: to_save,
-            headers: {"Content-type": "application/json; charset=UTF-8"}
-        })
-        .then(response => ret = JSON.parse(response))
-        .catch (err => console.error(err));
 
-        if (!ret) {
-            console.warn("La partida s'ha guardat en local.");
-            localStorage.save = to_save;
-        }
-        window.location.assign("../");
-    }
+				this.score -= this.penalty;
+				this.errors++;
+                
+				// Comprovació derrota
+				if (this.score <= 0){
+					alert ("Has perdut");
+					window.location.assign("../");
+				}
+			}
+		}
+	},
+	save: function(){
+		let to_save = JSON.stringify({
+			items: this.items,
+			states: this.states,
+			selectedCards: this.selectedCards,
+			remainingGroups: this.remainingGroups,
+			score: this.score,
+			groupSize: this.groupSize,
+			numCards: this.numCards,
+			difficulty: this.difficulty,
+			errors: this.errors,
+			level: this.level,
+			timeLimit: this.timeLimit,
+			penalty: this.penalty
+		});
+
+		let ret = false;
+		fetch('../php/save.php',{
+			method: "POST",
+			body: to_save,
+			headers: {"Content-type": "application/json; charset=UTF-8"}
+		})
+
+		.then(response => ret = JSON.parse(response))
+		.catch (err => console.error(err));
+
+		if (!ret){
+			console.warn("La partida s'ha guardat en local.");
+			localStorage.save = to_save;
+		}
+		window.location.assign("../");
+	}
 }
 
 function shuffe(arr){
-    arr.sort(function () {return Math.random() - 0.5});
+	arr.sort(function (){
+		return Math.random() - 0.5
+	});
 }
 
 export var gameItems;
-export function selectCards() { 
-    game.select();
-    gameItems = game.items;
+export function selectCards(){ 
+	game.select();
+	gameItems = game.items;
 }
 
 export function clickCard(indx){ 
@@ -187,25 +300,11 @@ export function startGame(){
 	game.start(); 
 }
 
-export function initCard(callback) { 
-    if (!game.setValue) game.setValue = [];
-    game.setValue.push(callback); 
+export function initCard(callback){ 
+	if (!game.setValue) game.setValue = [];
+	game.setValue.push(callback); 
 }
-
-// Funcions no utilitzades en la implementació de memory.js
-
-/*
-function goBack(idx){
-    setValue(idx, back);
-    clickOn(idx);
-}
-
-function goFront(idx){
-    setValue(idx, items[idx]);
-    clickOff(idx);
-}
-*/
 
 export function saveGame(){
-    game.save();
+	game.save();
 }

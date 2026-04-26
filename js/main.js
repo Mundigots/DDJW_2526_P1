@@ -7,13 +7,11 @@ import {$} from "../library/jquery-4.0.0.slim.module.min.js";
 	var seleccionarExit = $('#exit');
 	
 // Detectar canvis
-
-	// PLAY
+	// PLAY (mostra la selecció del mode de joc)
 	seleccionarPlay.on('click', function (){
-		sessionStorage.removeItem('load');
-		window.location.assign("./html/game.html");
+		window.location.assign("./html/selectPlayMode.html");
 	});
-
+	
 	// OPTIONS
 	seleccionarOptions.on('click', function (){
 		window.location.assign("./html/options.html");
@@ -35,12 +33,10 @@ import {$} from "../library/jquery-4.0.0.slim.module.min.js";
 				toLoad = JSON.stringify(json.save);
 			}
 		})
-		
 		.catch(err => {
 			console.error(err);
 			console.warn("La partida s'intentarà carregar de local");
 		})
-		
 		.finally(() => {
 			if (!toLoad){
 				alert("No hi ha cap partida a carregar");
