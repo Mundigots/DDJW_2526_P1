@@ -3,30 +3,12 @@
 	<head>
 		<link rel="stylesheet" href="../styles/main.css">
         <script src="../js/options.js" type="module"></script>
-		<title> Memory - Opcions </title>
+		<title> Memory - Opcions en funció del mode </title>
 	</head>
 	<body>
-		<h1>Opcions</h1>
-		
-		<label for="pairs">Número de cartes</label>
-		<input type="number" id="pairs" value="2" min="2" max="6">
-		
-		<!-- Dificultat -->
-		<label for="dif">Dificultat</label>
-		<select id="dif">
-			<option value="easy">Baixa</option>
-			<option value="normal" selected>Normal</option>
-			<option value="hard">Alta</option>
-		</select>
-		
-		<!-- Mida del grup -->
-		<label for="groupSize">Mida grup</label>
-		<select id="groupSize">
-			<option value="2">Parelles</option>
-			<option value="3" selected>Trios</option>				<option value="4">Quartets</option>
-		</select>
-			
-		<button id="default">Per defecte</button>		
-        <button id="apply">Aplicar</button>
+		<h1>Opcions Mode</h1>			
+		<button id="opMode1" class="center">Opcions mode 1</button>		
+        <button id="opMode2" class="center">Opcions mode 2</button>
+		<button id="back" class="center">Tornar</button>
 	</body>
 </html>

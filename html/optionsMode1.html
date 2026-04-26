@@ -1,0 +1,39 @@
+<!DOCTYPE html> 
+<html>
+	<head>
+		<link rel="stylesheet" href="../styles/main.css">
+        <script src="../js/optionsMode1.js" type="module"></script>
+		<title> Memory - Opcions Mode 1 </title>
+	</head>
+	<body>
+		<h1>Opcions Mode 1</h1>
+		
+		<label for="groupCount">Número de cartes</label>
+		<select id="groupCount">
+			<option value="2">4 cartes (2 parelles)</option>
+			<option value="3">6 cartes (3 parelles)</option>
+			<option value="4">8 cartes (4 parelles)</option>
+			<option value="5">10 cartes (5 parelles)</option>
+			<option value="6">12 cartes (6 parelles)</option>
+		</select>
+		
+		<!-- Dificultat -->
+		<label for="dif">Dificultat</label>
+		<select id="dif">
+			<option value="easy">Baixa</option>
+			<option value="normal" selected>Normal</option>
+			<option value="hard">Alta</option>
+		</select>
+		
+		<!-- Mida del grup -->
+		<label for="groupSize">Mida grup</label>
+		<select id="groupSize">
+			<option value="2">Parelles</option>
+			<option value="3">Trios</option>				
+			<option value="4">Quartets</option>
+		</select>
+			
+		<button id="default" class="center">Per defecte</button>		
+        <button id="apply" class="center">Aplicar</button>
+	</body>
+</html>
